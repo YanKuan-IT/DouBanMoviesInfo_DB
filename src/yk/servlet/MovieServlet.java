@@ -38,10 +38,8 @@ public class MovieServlet extends HttpServlet {
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		
 		String path = request.getSession().getServletContext().getRealPath("/");
 		path = path + "WEB-INF/classes/ehcache.xml"; 
-		System.out.println(path+"==========================================");
 		manager = CacheManager.create(path);
 		
 		cache = manager.getCache("a");
@@ -52,6 +50,7 @@ public class MovieServlet extends HttpServlet {
 		if(method.equals("listAll")){
 			List<Movie> allMovies = movieService.findAll();
 			request.setAttribute("allMovies", allMovies);
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
 		}else if(method.equals("getData")){
 			long startTime = System.currentTimeMillis();
 			/**
@@ -66,14 +65,13 @@ public class MovieServlet extends HttpServlet {
 			}
 			long endTime = System.currentTimeMillis();
 			System.out.println("共用时："+((endTime-startTime)/1000)+"s");
+			request.getRequestDispatcher("/index.jsp").forward(request, response);
 		}
 		
 		// 关闭当前CacheManager对象
         manager.shutdown();
         // 关闭CacheManager单例实例
         CacheManager.getInstance().shutdown();
-		
-		request.getRequestDispatcher("/index.jsp").forward(request, response);
 	}
 	
 	private void getData(){
@@ -188,17 +186,20 @@ public class MovieServlet extends HttpServlet {
 			//是否可以在线播放
 			String is_playable = e.get("is_playable").getAsString();
 			
-			if(cache.get(movieUrl) != null){
-				String value = (String) cache.get(movieUrl).getObjectValue();
+			String substring = movieUrl.substring(0, movieUrl.lastIndexOf("/"));
+			String keyID = substring.substring(substring.lastIndexOf("/"), substring.length());
+			
+			if(cache.get(keyID) != null){
+				String value = (String) cache.get(keyID).getObjectValue();
 				if(!name.equals(value)){
-					net.sf.ehcache.Element element2 = new net.sf.ehcache.Element(movieUrl,name);
+					net.sf.ehcache.Element element2 = new net.sf.ehcache.Element(keyID,name);
 					cache.put(element2);
 				}else {
-					System.out.println("重复的 movie Info");
+//					System.out.println("重复的 movie Info");
 					continue;
 				}
 			}else {
-				net.sf.ehcache.Element element2 = new net.sf.ehcache.Element(movieUrl,name);
+				net.sf.ehcache.Element element2 = new net.sf.ehcache.Element(keyID,name);
 				cache.put(element2);
 			}
 			

@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import yk.entity.Movie;
 import yk.util.JdbcUtils;
@@ -168,6 +170,81 @@ public class MovieDao {
 		}
 	}
 	
+	public Map<String,Integer> Count(){
+		
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet resultSet = null;
+		
+		Map<String,Integer> mapCount = new HashMap<String, Integer>();
+		
+		conn = JdbcUtils.getConnection();
+		String sql = null;
+		String key = null;
+		int i=0;
+		while (i<5) {
+			switch (i) {
+				case 0:
+					sql = "SELECT COUNT(1) FROM movie WHERE score>=9 ";
+					key = "one";
+					break;
+				case 1:
+					sql = "SELECT COUNT(1) FROM movie WHERE score>=8.5 && score<9 ";
+					key = "two";
+					break;
+				case 2:
+					sql = "SELECT COUNT(1) FROM movie WHERE score>=8 && score<8.5 ";
+					key = "three";
+					break;
+				case 3:
+					sql = "SELECT COUNT(1) FROM movie WHERE score>=7.5 && score<8 ";
+					key = "four";
+					break;
+				case 4:
+					sql = "SELECT COUNT(1) FROM movie WHERE score<7.5 ";
+					key = "five";
+					break;
+			}
+			try {
+				stmt = conn.prepareStatement(sql);
+				resultSet = stmt.executeQuery();
+				while (resultSet.next()) {
+					mapCount.put(key, resultSet.getInt(1));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			i++;
+		}
+		return mapCount;
+	}
 	
-	
+	public Map<String,Integer> lineChart(){
+		
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet resultSet = null;
+		
+		Map<String,Integer> mapCount = new HashMap<String, Integer>();
+		
+		conn = JdbcUtils.getConnection();
+		String sql = null;
+		int number = 99;
+		for( ; number>=70; number-=1){
+			//ªÒ»°9.9 9.1 7.4 .....
+			String s = number+"";
+			String score = s.charAt(0)+"."+s.charAt(1);
+			sql = "SELECT COUNT(1) FROM movie WHERE score=" + score ;
+			try {
+				stmt = conn.prepareStatement(sql);
+				resultSet = stmt.executeQuery();
+				while (resultSet.next()) {
+					mapCount.put(score, resultSet.getInt(1));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return mapCount;
+	}
 }

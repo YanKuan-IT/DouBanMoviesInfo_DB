@@ -32,10 +32,11 @@
   
   <body>
     <!-- 只用于获取数据 -->
-    <a href="MovieServlet?method=getData"><button>抓取数据</button></a>
+    <!-- <a href="MovieServlet?method=getData"><button>抓取数据</button></a> -->
     
     <a href="MovieServlet?method=listAll"><button>查看所有的数据</button></a>
-  	  
+    <a href="Score.jsp"><button>评分统计图</button></a>
+  	
     <c:if test="${fn:length(allMovies)>0 }">
     	<table>
    			<tr>
