@@ -1,0 +1,3 @@
+# DouBanMoviesInfo_DB
+获取豆瓣电影网站的电影数据信息，使用ehcache机制，并保存数据至mysql
+生成的图片保存至tomcat中，jsp显示图片在页面上
